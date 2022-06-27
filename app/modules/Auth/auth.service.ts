@@ -19,7 +19,7 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async register(payload: RegisterPayload): Promise<object> {
+  async register(payload: RegisterPayload, role: string): Promise<object> {
     const { email, password } = payload;
     const [username] = email.split('@');
     const found = await this.user.findOne({ email });
@@ -34,6 +34,7 @@ export class AuthService {
     const user = await new this.user({
       ...payload,
       username,
+      role: role === 'user' ? 'user' : 'admin',
       password: hashedPassword,
     }).save();
 
@@ -46,7 +47,7 @@ export class AuthService {
     };
   }
 
-  async login(payload: LoginPayload): Promise<object> {
+  async login(payload: LoginPayload, role: string): Promise<object> {
     const { email, password } = payload;
 
     const user = await this.user.findOne({ email });
@@ -63,6 +64,10 @@ export class AuthService {
 
     const tokenPayload = { _id: user._id };
     const accessToken: string = this.jwtService.sign(tokenPayload);
+
+    if (role === 'admin' && user.role === 'user') {
+      throw new UnauthorizedException('admin-only');
+    }
 
     return {
       accessToken,

@@ -19,12 +19,22 @@ export class AuthController {
 
   @Post('/register')
   async register(@Body() payload: RegisterPayload): Promise<object> {
-    return this.authService.register(payload);
+    return this.authService.register(payload, 'user');
   }
 
   @Post('/login')
   async login(@Body() payload: LoginPayload): Promise<object> {
-    return this.authService.login(payload);
+    return this.authService.login(payload, 'user');
+  }
+
+  @Post('/admin/register')
+  async registerAdmin(@Body() payload: RegisterPayload): Promise<object> {
+    return this.authService.register(payload, 'admin');
+  }
+
+  @Post('/admin/login')
+  async loginAdmin(@Body() payload: LoginPayload): Promise<object> {
+    return this.authService.login(payload, 'admin');
   }
 
   @Get('/user')
